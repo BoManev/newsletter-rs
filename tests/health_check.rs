@@ -1,8 +1,11 @@
+use sqlx::{Connection, PgConnection};
+use zero2prod::*;
+
 fn spawn_app() -> String {
     let listener = std::net::TcpListener::bind("127.0.0.1:0")
         .expect("Failed to bind port!");
     let port = listener.local_addr().unwrap().port();
-    let server = zero2prod::startup::run(listener).expect("Failed to launch backend!");
+    let server = startup::run(listener).expect("Failed to launch backend!");
     let _ = tokio::spawn(server);
 
     format!("http://127.0.0.1:{}", port)
@@ -27,7 +30,16 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     // setup
     let app_address = spawn_app();
     let client = reqwest::Client::new();
+
+    let config = config::get_config().expect("Failed to read config!");
+    let conn_str = config.database.connection_string();
+    let mut conn = PgConnection::connect(&conn_str)
+        .await
+        .expect("Failed to connect to Postgres.");
+    let db_client = reqwest::Client::new();
+
     let body = "name=bo%20manev&email=bo_manev%40gmail.com";
+
     // exercise
     let response = client
         .post(&format!("{}/subscriptions", &app_address))
@@ -36,8 +48,13 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
         .send()
         .await
         .expect("Failed to send request!");
+
     // verify (& teardown)
     assert_eq!(200, response.status().as_u16());
+    let saved = sqlx::query!("SELECT email, name FROM subscriptions")
+        .fetch_one(&mut conn)
+        .await
+        .expect("Failed to fetch saved subscription.");
 }
 
 #[tokio::test]
