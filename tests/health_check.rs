@@ -1,5 +1,6 @@
 fn spawn_app() -> String {
-    let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("Failed to bind port!");
+    let listener = std::net::TcpListener::bind("127.0.0.1:0")
+        .expect("Failed to bind port!");
     let port = listener.local_addr().unwrap().port();
     let server = zero2prod::run(listener).expect("Failed to launch backend!");
     let _ = tokio::spawn(server);
@@ -59,10 +60,12 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
             .send()
             .await
             .expect("Failed to send request!");
-    // verify (&teardown)
-    assert_eq!(
-        400,
-        response.status().as_u16(),
-        "Failed with 400 Bad Request, payload {}", error_message);
+        // verify (&teardown)
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "Failed with 400 Bad Request, payload {}",
+            error_message
+        );
     }
 }
