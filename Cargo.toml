@@ -11,9 +11,21 @@ path = "src/main.rs"
 name = "zero2prod"
 
 [dependencies]
-actix-web = "4" 
+actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
-serde = { version = "1", features = ["derive"]}
+serde = { version = "1", features = ["derive"] }
+
+[dependencies.sqlx]
+version = "0.5.7"
+default-features = false
+features = [
+    "runtime-actix-rustls", # use the actix runtime futures and rustls as TLS backend;
+    "macros",               # access to sqlx::query! and sqlx::query_as!
+    "postgres",
+    "uuid",                 # mapping SQL UUIDs to the Uuid type
+    "chrono",               # mapping SQL timestamptz to the DateTime<T>
+    "migrate",              # access to sqlx-cli
+]
 
 [dev-dependencies]
 reqwest = "0.11"
