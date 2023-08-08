@@ -8,7 +8,7 @@ then
     exit 1
 fi
 
-if ![ -x "${command -v sqlx}" ];
+if ![ -x "$(command -v sqlx)" ];
 then
     echo >&2 "Error: sqlx is not installed."
     echo >&2 "Use:"
@@ -22,13 +22,16 @@ DB_PASSWORD="${POSTGRES_PASSWORD:=password}"
 DB_NAME="${POSTGRES_DB:=postgres}"
 DB_PORT="${POSTGRES_PORT:=5432}"
 
-docker run \
--e POSTGRES_USER=${DB_USER} \
--e POSTGRES_PASSWORD=${DB_PASSWORD} \
--e POSTGRES_DB=${DB_NAME} \
--p "${DB_PORT}":5432 \
--d postgres\
-postgres -N 1000
+if [[ -z "${SKIP_DOCKER}" ]]
+then
+    docker run \
+    -e POSTGRES_USER=${DB_USER} \
+    -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+    -e POSTGRES_DB=${DB_NAME} \
+    -p "${DB_PORT}":5432 \
+    -d postgres\
+    postgres -N 1000
+fi
 
 
 export PGPASSWORD="${DB_PASSWORD}"
@@ -41,4 +44,7 @@ done
 
 export DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@localhost:${DB_PORT}/${DB_NAME}
 sqlx database create
+sqlx migrate run
+
+>&2 echo "Postgres has been migrated, ready to go!"
 
