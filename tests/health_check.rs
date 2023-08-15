@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use secrecy::ExposeSecret;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use zero2prod::config::{get_config, DatabaseSettings};
@@ -55,18 +56,21 @@ async fn spawn_app() -> TestApp {
 }
 
 pub async fn configure_dababase(config: &DatabaseSettings) -> PgPool {
-    let mut conn = PgConnection::connect(&config.connection_string_no_db())
-        .await
-        .expect("Failed to connect to Postgres.");
+    let mut conn = PgConnection::connect(
+        &config.connection_string_no_db().expose_secret(),
+    )
+    .await
+    .expect("Failed to connect to Postgres.");
     conn.execute(
         format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str(),
     )
     .await
     .expect("Failed to create database.");
 
-    let conn_pool = PgPool::connect(&config.connection_string())
-        .await
-        .expect("Failed to connect to Postgres.");
+    let conn_pool =
+        PgPool::connect(&config.connection_string().expose_secret())
+            .await
+            .expect("Failed to connect to Postgres.");
 
     sqlx::migrate!("./migrations")
         .run(&conn_pool)
