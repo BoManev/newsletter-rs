@@ -18,9 +18,9 @@ config = "0.11"
 uuid = { version = "0.8.1", features = ["v4"] }
 chrono = "0.4.15"
 env_logger = "0.9"
-tracing = { version = "0.1", features = ["log"]}
-tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"]}
-tracing-bunyan-formatter = "0.3"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
+tracing-bunyan-formatter = "0.3.0"
 tracing-log = "0.1"
 secrecy = { version = "0.8", features = ["serde"] }
 tracing-actix-web = "0.5"
@@ -35,7 +35,7 @@ features = [
     "uuid",                 # mapping SQL UUIDs to the Uuid type
     "chrono",               # mapping SQL timestamptz to the DateTime<T>
     "migrate",              # access to sqlx-cli
-    "offline"
+    "offline",
 ]
 
 [dev-dependencies]
