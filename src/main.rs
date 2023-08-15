@@ -1,11 +1,16 @@
-use std::net::TcpListener;
 use sqlx::PgPool;
-use env_logger::Env;
+use std::net::TcpListener;
 use zero2prod::*;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let subscriber = telemetry::get_subscriber(
+        "zero2prod".into(),
+        "info".into(),
+        std::io::stdout,
+    );
+    telemetry::init_subscriber(subscriber);
+
     let config = config::get_config().expect("Failed to read configuration!");
     let conn_pool = PgPool::connect(&config.database.connection_string())
         .await
