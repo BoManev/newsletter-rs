@@ -9,7 +9,7 @@ RUN cargo build --release
 
 # runtime
 
-FROM rust:1.71.1 as runtime
+FROM rust:1.71.1-slim as runtime
 
 WORKDIR /app
 COPY --from=builder /app/target/release/zero2prod zero2prod
