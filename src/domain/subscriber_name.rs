@@ -1,27 +1,19 @@
 use unicode_segmentation::UnicodeSegmentation;
 
-// can't construct instance outside of domain, moreover can only construct thru parse fn
-// "parse, don't validate"
 #[derive(Debug)]
 pub struct SubscriberName(String);
 
-pub struct NewSubscriber {
-    pub email: String,
-    pub name: SubscriberName,
-}
-
 impl SubscriberName {
-    #[tracing::instrument(name = "Parse Subscriber")]
     pub fn parse(s: String) -> Result<SubscriberName, String> {
-        let is_emptry_or_whitespace = s.trim().is_empty();
-        tracing::info!("{is_emptry_or_whitespace} is_empty for {s}");
-        let is_too_log = s.graphemes(true).count() > 256;
+        let is_empty = s.trim().is_empty();
+
+        let is_overflow = s.graphemes(true).count() > 256;
 
         let forbidden_chars = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let has_forbidden_chars =
             s.chars().any(|c| forbidden_chars.contains(&c));
 
-        if is_emptry_or_whitespace || is_too_log || has_forbidden_chars {
+        if is_empty || is_overflow || has_forbidden_chars {
             Err(format!("{s} is not a valid subscriber name"))
         } else {
             Ok(Self(s))
