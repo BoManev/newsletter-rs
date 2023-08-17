@@ -1,4 +1,7 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{
+    web::{Data, Form},
+    HttpResponse,
+};
 use chrono::Utc;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -6,6 +9,7 @@ use uuid::Uuid;
 use crate::{
     domain::{NewSubscriber, SubscriberEmail, SubscriberName},
     email_client::EmailClient,
+    startup::ApplicationBaseUrl,
 };
 
 #[derive(serde::Deserialize)]
@@ -28,16 +32,17 @@ impl TryFrom<FormData> for NewSubscriber {
 // web::Data is a form of dependacy injection (type-map mapping Any to TypeId::of)
 #[tracing::instrument(
     name = "Adding a new subscriber",
-    skip(form, pool, email_client),
+    skip(form, pool, email_client, base_url),
     fields(
         subscriber_email = %form.email,
         subscriber_name = %form.name
     )
 )]
 pub async fn subscribe(
-    form: web::Form<FormData>,
-    pool: web::Data<PgPool>,
-    email_client: web::Data<EmailClient>,
+    form: Form<FormData>,
+    pool: Data<PgPool>,
+    email_client: Data<EmailClient>,
+    base_url: Data<ApplicationBaseUrl>,
 ) -> HttpResponse {
     let new_subscriber = match form.0.try_into() {
         Ok(subscriber) => subscriber,
@@ -48,7 +53,7 @@ pub async fn subscribe(
         return HttpResponse::InternalServerError().finish();
     }
 
-    if send_confirmation_email(&email_client, new_subscriber)
+    if send_confirmation_email(&email_client, new_subscriber, &base_url.0)
         .await
         .is_err()
     {
@@ -64,8 +69,10 @@ pub async fn subscribe(
 pub async fn send_confirmation_email(
     email_client: &EmailClient,
     new_subscriber: NewSubscriber,
+    base_url: &str,
 ) -> Result<(), reqwest::Error> {
-    let confirmation_link = "https://my-api.com/subscriptions/confirm";
+    let confirmation_link =
+        format!("{base_url}/subscriptions/confirm?subscription_token=mytoken");
     let text_body = format!(
         "Welcometo our newsletter!\nVisit {} to confirm your subscription.",
         confirmation_link
@@ -92,7 +99,7 @@ pub async fn insert_subscriber(
     sqlx::query!(
         r#"
         INSERT INTO subscriptions (id, email, name, subscribed_at, status)
-        VALUES($1, $2, $3, $4, 'confirmed')
+        VALUES($1, $2, $3, $4, 'pending_confirmation')
         "#,
         Uuid::new_v4(),
         new_subscriber.email.as_ref(),
