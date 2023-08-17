@@ -14,7 +14,7 @@ pub struct FormData {
 impl TryFrom<FormData> for NewSubscriber {
     type Error = String;
 
-    // auto implementation for try_into as well 
+    // auto implementation for try_into as well
     fn try_from(value: FormData) -> Result<Self, Self::Error> {
         let name = SubscriberName::parse(value.name)?;
         let email = SubscriberEmail::parse(value.email)?;
