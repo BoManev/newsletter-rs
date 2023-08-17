@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::{
     domain::{NewSubscriber, SubscriberEmail, SubscriberName},
-    email_client::{self, EmailClient},
+    email_client::EmailClient,
 };
 
 #[derive(serde::Deserialize)]
@@ -47,13 +47,20 @@ pub async fn subscribe(
     if insert_subscriber(&pool, &new_subscriber).await.is_err() {
         return HttpResponse::InternalServerError().finish();
     }
-
+    let confirmation_link = "https://my-api/subscriptions/confirm";
     if email_client
         .send_email(
             new_subscriber.email,
             "Welcome!",
-            "Welcome to our newsletter",
-            "Welcome to our newsletter",
+            &format!(
+                "Welcome to our newsletter!<br />
+                Click <a href=\"{}\">here</a> to confirm your subscription.",
+                confirmation_link
+            ),
+            &format!(
+                "Welcometo our newsletter!\nVisit {} to confirm your subscription.",
+                confirmation_link
+            )
         )
         .await
         .is_err()
