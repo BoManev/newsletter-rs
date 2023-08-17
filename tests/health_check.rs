@@ -167,7 +167,7 @@ async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
             .expect("Failed to execute request");
 
         assert_eq!(
-            200,
+            400,
             response.status().as_u16(),
             "Failed to return 400 Bad Request with payload {}",
             desc
