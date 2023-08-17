@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
+use zero2prod::email_client::{self, EmailClient};
 use zero2prod::startup::run;
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 /// TODO: change to std::sync::Once
@@ -45,8 +46,13 @@ async fn spawn_app() -> TestApp {
     config.database.database_name = Uuid::new_v4().to_string();
     let conn_pool = configure_dababase(&config.database).await;
 
-    let server =
-        run(listener, conn_pool.clone()).expect("Failed to launch backend!");
+    let sender_email =
+        config.email_client.sender().expect("Invalid sender email");
+    let email_client =
+        EmailClient::new(config.email_client.base_url, sender_email);
+
+    let server = run(listener, conn_pool.clone(), email_client)
+        .expect("Failed to launch backend!");
     let _ = tokio::spawn(server);
 
     TestApp {
