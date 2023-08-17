@@ -48,8 +48,11 @@ async fn spawn_app() -> TestApp {
 
     let sender_email =
         config.email_client.sender().expect("Invalid sender email");
-    let email_client =
-        EmailClient::new(config.email_client.base_url, sender_email);
+    let email_client = EmailClient::new(
+        config.email_client.base_url,
+        sender_email,
+        config.email_client.auth_token,
+    );
 
     let server = run(listener, conn_pool.clone(), email_client)
         .expect("Failed to launch backend!");
