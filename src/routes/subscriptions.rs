@@ -225,3 +225,7 @@ fn error_chain_fmt(
 
 // thiserror: error enumeration on the callsite
 // anyhow (eyre): error reporting on the callsite
+
+//                  Internal                    At the edge 
+// Control Flow:    Types, methods, fields      Status codes
+// Reporting:       Logs/traces                 Response body
