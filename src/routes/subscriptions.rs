@@ -102,7 +102,7 @@ pub async fn send_confirmation_email(
     );
 
     email_client
-        .send_email(new_subscriber.email, "Welcome!", &html_body, &text_body)
+        .send_email(&new_subscriber.email, "Welcome!", &html_body, &text_body)
         .await
 }
 
@@ -208,7 +208,7 @@ impl std::error::Error for StoreTokenError {
     }
 }
 
-fn error_chain_fmt(
+pub fn error_chain_fmt(
     e: &impl std::error::Error,
     f: &mut std::fmt::Formatter<'_>,
 ) -> std::fmt::Result {
@@ -226,6 +226,6 @@ fn error_chain_fmt(
 // thiserror: error enumeration on the callsite
 // anyhow (eyre): error reporting on the callsite
 
-//                  Internal                    At the edge 
+//                  Internal                    At the edge
 // Control Flow:    Types, methods, fields      Status codes
 // Reporting:       Logs/traces                 Response body
