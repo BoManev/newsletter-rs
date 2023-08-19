@@ -159,8 +159,8 @@ mod tests {
         let mock_server = MockServer::start().await;
         let email_client = email_client(mock_server.uri());
 
-        let mock_response = ResponseTemplate::new(200)
-            .set_delay(std::time::Duration::from_secs(10));
+        let mock_response =
+            ResponseTemplate::new(200).set_delay(std::time::Duration::from_secs(10));
         Mock::given(any())
             .respond_with(mock_response)
             .expect(1)

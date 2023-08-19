@@ -46,8 +46,7 @@ pub struct EmailClientSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
-    let base_path =
-        std::env::current_dir().expect("Failed to determine the PWD");
+    let base_path = std::env::current_dir().expect("Failed to determine the PWD");
     let config_dir = base_path.join("configuration");
 
     let env: Environment = std::env::var("APP_ENVIRONMENT")
@@ -83,7 +82,10 @@ impl TryFrom<String> for Environment {
         match value.to_lowercase().as_str() {
             "local" => Ok(Self::Local),
             "production" => Ok(Self::Production),
-            other => Err(format!("{} is not a supported environment. Use either `local` or `production`", other))
+            other => Err(format!(
+                "{} is not a supported environment. Use either `local` or `production`",
+                other
+            )),
         }
     }
 }

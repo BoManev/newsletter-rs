@@ -33,8 +33,7 @@ impl TestApp {
         &self,
         email_req: &wiremock::Request,
     ) -> ConfirmationLinks {
-        let body: serde_json::Value =
-            serde_json::from_slice(&email_req.body).unwrap();
+        let body: serde_json::Value = serde_json::from_slice(&email_req.body).unwrap();
 
         let get_link = |s: &str| {
             let links: Vec<_> = linkify::LinkFinder::new()
@@ -62,8 +61,7 @@ pub async fn spawn_app() -> TestApp {
 
     let email_server = MockServer::start().await;
     let config = {
-        let mut cfg =
-            get_configuration().expect("Failed to load configuration");
+        let mut cfg = get_configuration().expect("Failed to load configuration");
         cfg.database.database_name = Uuid::new_v4().to_string();
         cfg.application.port = 0;
         cfg.email_client.base_url = email_server.uri();
@@ -91,11 +89,9 @@ async fn configure_dababase(config: &DatabaseSettings) -> PgPool {
         .await
         .expect("Failed to connect to Postgres");
 
-    conn.execute(
-        format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str(),
-    )
-    .await
-    .expect("Failed to migrate database");
+    conn.execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .await
+        .expect("Failed to migrate database");
 
     let conn_pool = PgPool::connect_with(config.with_db())
         .await
@@ -114,18 +110,12 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     let subscriber_name = "z2p-test".to_string();
 
     if std::env::var("TEST_LOG").is_ok() {
-        let subscriber = get_subscriber(
-            subscriber_name,
-            default_filter_level,
-            std::io::stdout,
-        );
+        let subscriber =
+            get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
         init_subscriber(subscriber);
     } else {
-        let subscriber = get_subscriber(
-            subscriber_name,
-            default_filter_level,
-            std::io::sink,
-        );
+        let subscriber =
+            get_subscriber(subscriber_name, default_filter_level, std::io::sink);
         init_subscriber(subscriber);
     }
 });

@@ -32,8 +32,7 @@ impl Application {
             timeout,
         );
 
-        let address =
-            format!("{}:{}", config.application.host, config.application.port);
+        let address = format!("{}:{}", config.application.host, config.application.port);
         let listener = TcpListener::bind(address)?;
         let port = listener.local_addr().unwrap().port();
         let server = run(
@@ -72,8 +71,7 @@ pub async fn build(config: Settings) -> Result<Server, std::io::Error> {
         timeout,
     );
 
-    let address =
-        format!("{}:{}", config.application.host, config.application.port);
+    let address = format!("{}:{}", config.application.host, config.application.port);
     let listener = TcpListener::bind(address)?;
     run(
         listener,

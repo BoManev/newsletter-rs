@@ -10,8 +10,7 @@ impl SubscriberName {
         let is_overflow = s.graphemes(true).count() > 256;
 
         let forbidden_chars = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
-        let has_forbidden_chars =
-            s.chars().any(|c| forbidden_chars.contains(&c));
+        let has_forbidden_chars = s.chars().any(|c| forbidden_chars.contains(&c));
 
         if is_empty || is_overflow || has_forbidden_chars {
             Err(format!("{s} is not a valid subscriber name"))

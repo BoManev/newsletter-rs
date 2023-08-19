@@ -124,12 +124,10 @@ async fn subscribe_fails_if_there_is_a_fatal_error() {
     let app = spawn_app().await;
     let body = "name=bo%20manev&email=bo_manev%40gmail.com";
 
-    sqlx::query!(
-        "ALTER TABLE subscriptions_tokens DROP COLUMN subscription_token"
-    )
-    .execute(&app.db_pool)
-    .await
-    .unwrap();
+    sqlx::query!("ALTER TABLE subscriptions_tokens DROP COLUMN subscription_token")
+        .execute(&app.db_pool)
+        .await
+        .unwrap();
 
     let response = app.post_subscriptions(body.into()).await;
 
