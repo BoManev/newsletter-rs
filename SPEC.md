@@ -13,7 +13,7 @@ As a blog visitor, I want to subscribe to the newsletter,
 so that I can receive updates when new content is published on the blog
 
 ### Blog author
-As a blog author, I want to send updates when new content is published,
+As a blog author, I want to send an email to all my **confirmed** subscribers when new content is published,
 so that I can notify my reader
 
 ### Subscriber
