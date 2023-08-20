@@ -22,12 +22,7 @@ async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
         "html": "<p>Newsletter body as HTML</p>"
         }
     });
-    let response = reqwest::Client::new()
-        .post(&format!("{}/newsletters", &app.address))
-        .json(&newsletter_req_body)
-        .send()
-        .await
-        .expect("Failed to execute request");
+    let response = app.post_newsletter(newsletter_req_body).await;
 
     assert_eq!(response.status().as_u16(), 200);
 }
@@ -86,6 +81,30 @@ async fn newsletters_retunrs_400_for_invalid_data() {
             "The API did not fail with 400 Bad Request with payload {error}"
         )
     }
+}
+
+#[tokio::test]
+async fn requests_missing_authorization_are_rejected_with_401() {
+    let app = spawn_app().await;
+
+    let response = reqwest::Client::new()
+        .post(&format!("{}/newsletters", &app.address))
+        .json(&serde_json::json!({
+            "title": "Newsletter title",
+            "content": {
+                "text": "Newsletter body as plain text",
+                "html": "<p>Newsletter body as HTML</p>"
+            }
+        }))
+        .send()
+        .await
+        .expect("Failed to execute request");
+
+    assert_eq!(401, response.status().as_u16());
+    assert_eq!(
+        r#"Basic realm="publish""#,
+        response.headers()["WWW-Authenticate"]
+    );
 }
 
 async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {
