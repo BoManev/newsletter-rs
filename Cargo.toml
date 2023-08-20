@@ -36,6 +36,7 @@ serde = "1.0.15"
 thiserror = "1"
 anyhow = "1"
 base64 = "0.13"
+sha3 = "0.9"
 
 [dependencies.sqlx]
 version = "0.5.7"
