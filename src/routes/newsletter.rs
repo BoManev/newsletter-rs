@@ -207,11 +207,9 @@ async fn validate_credentials(
     .await
     .context("Failed to spawn blocking task")
     .map_err(PublishError::UnexpectedError)?
-    .map_err(|e| {
-        match user_id {
-            Some(_) => e,
-            None => PublishError::AuthError(anyhow::anyhow!("Unknown username"))
-        }
+    .map_err(|e| match user_id {
+        Some(_) => e,
+        None => PublishError::AuthError(anyhow::anyhow!("Unknown username")),
     })?;
 
     user_id.ok_or_else(|| PublishError::AuthError(anyhow::anyhow!("Unknown username")))
